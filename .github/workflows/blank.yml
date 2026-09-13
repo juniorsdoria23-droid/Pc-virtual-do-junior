@@ -1,0 +1,42 @@
+#!/bin/bash
+# -------------------------------------------------------------------------
+# SCRIPT COMPLETO PARA CRIAR UM PC VIRTUAL VIA TERMINAL (KVM)
+# -------------------------------------------------------------------------
+
+# Nome da sua máquina virtual e configurações
+VM_NAME="PC_Virtual_Ubuntu"
+RAM_MB=8192         # 8GB de RAM dedicada
+CPUS=4              # 4 Núcleos de CPU dedicados
+DISK_GB=40          # 40GB de espaço em disco
+ISO_PATH="/var/lib/libvirt/images/ubuntu-desktop.iso"
+
+echo "===================================================="
+echo " Verificando e instalando pré-requisitos do sistema..."
+echo "===================================================="
+sudo apt update
+sudo apt install qemu-kvm libvirt-daemon-system libvirt-clients virtinst bridge-utils -y
+
+echo -e "\n===================================================="
+echo " Criando o disco rígido virtual de ${DISK_GB}GB..."
+echo "===================================================="
+sudo qemu-img create -f qcow2 /var/lib/libvirt/images/${VM_NAME}.qcow2 ${DISK_GB}G
+
+echo -e "\n===================================================="
+echo " Iniciando a instalação do PC Virtual: ${VM_NAME}..."
+echo "===================================================="
+echo "Aguarde a configuração dos recursos dedicados..."
+
+sudo virt-install \
+  --name=${VM_NAME} \
+  --ram=${RAM_MB} \
+  --vcpus=${CPUS} \
+  --disk path=/var/lib/libvirt/images/${VM_NAME}.qcow2,format=qcow2 \
+  --graphics vnc,listen=0.0.0.0 \
+  --os-variant=ubuntu22.04 \
+  --cdrom=${ISO_PATH} \
+  --network default \
+  --boot hd,cdrom
+
+echo "===================================================="
+echo " PC Virtual criado! Use um cliente VNC para conectar."
+echo "===================================================="
