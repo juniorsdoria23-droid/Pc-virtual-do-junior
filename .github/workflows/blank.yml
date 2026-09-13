@@ -1,0 +1,36 @@
+name: Build Windows
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Baixar código
+        uses: actions/checkout@v4
+
+      - name: Verificar Windows
+        shell: powershell
+        run: |
+          Write-Host "Sistema:"
+          Get-ComputerInfo | Select-Object WindowsProductName, WindowsVersion, OsArchitecture
+
+      - name: Preparar ambiente
+        shell: powershell
+        run: |
+          New-Item -ItemType Directory -Force -Path build
+          Write-Host "Ambiente preparado."
+
+      - name: Build
+        shell: powershell
+        run: |
+          Write-Host "Executando build..."
+          # Coloque aqui os comandos do seu projeto
+
+      - name: Salvar resultado
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-windows
+          path: build/
